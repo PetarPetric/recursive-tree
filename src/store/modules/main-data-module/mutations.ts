@@ -25,7 +25,8 @@ function recursiveRemoval(arr: any, obj: ITableRow) {
         if (deepEqual(arr[i], obj)) {
             console.log(arr[i])
             return arr.splice(i, 1)
-        } else if (!deepEqual(arr[i], obj)) {
+        }
+        if (!deepEqual(arr[i], obj)) {
             for (const key in arr[i].kids) {
                 if (arr[i]?.kids[key]?.records) {
                     recursiveRemoval(arr[i].kids[key].records, obj)
