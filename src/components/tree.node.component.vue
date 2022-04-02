@@ -1,52 +1,39 @@
 <template>
   <div :style="tableMargins">
-    <thead>
-      <div v-if="areThereRecords">
-        <span @click="toggleChildren" v-if="!showChildren" class="expand-icon">
-          <i class="fa fa-angle-right"></i>
-        </span>
-        <span
-          @click="toggleChildren"
-          v-else-if="showChildren"
-          class="expand-icon"
-        >
-          <i class="fa fa-angle-down"></i>
-        </span>
-      </div>
-
-      <tr>
-        <th v-for="(value, key) in nodes" :key="value">
-          <span>{{ key }}</span>
-        </th>
-        <th></th>
+    <table>
+      <tr v-if="node.title">
+        {{
+          node.title
+        }}
       </tr>
-    </thead>
-    <tbody>
       <tr>
-        <td v-for="value in nodes" :key="value">
-          <span>{{ value }}</span>
+        <th @click="toggleChildren" v-if="hasRecords">
+          <i
+            :class="[showChildren ? 'fa fa-angle-down' : 'fa fa-angle-right']"
+            class="expand-icon"
+          ></i>
+        </th>
+        <th v-for="(value, key) in tableData" :key="value">
+          {{ key }}
+        </th>
+      </tr>
+      <tr>
+        <td v-if="node.kids"></td>
+        <td v-for="value in tableData" :key="value">
+          {{ value }}
         </td>
         <td>
           <button @click="removeNode(node)" class="remove-node-btn">X</button>
         </td>
       </tr>
-      <div v-show="showChildren">
-        <tr>
-          <p v-if="areThereRecords">{{ hasChildren }}</p>
-        </tr>
-        <!-- I hope these IDs are always unique since proper vue rendering depends on them -->
-        <tree-node-component
-          v-for="node in extractChildrenData(node.kids)"
-          :node="node"
-          :key="
-            node.data['Relative ID']
-              ? node.data['Relative ID']
-              : node.data['Phone ID']
-          "
-          :spacing="spacing + 10"
-        />
-      </div>
-    </tbody>
+    </table>
+    <tree-node-component
+      v-show="showChildren"
+      v-for="node in normalizeData(node)"
+      :node="node"
+      :key="globalMixin(node)"
+      :spacing="spacing + 10"
+    />
   </div>
 </template>
 
@@ -54,6 +41,7 @@
 import { defineComponent, computed, reactive, ref } from "vue";
 import { useStore } from "vuex";
 import type { ITableRow } from "@/store/modules/main-data-module/types";
+import globalMixin from "../mixins/global.mixins";
 
 export default defineComponent({
   name: "TreeNodeComponent",
@@ -79,41 +67,58 @@ export default defineComponent({
       };
     });
 
+    let randomKey = ref(0);
     let showChildren = ref(false);
-    const nodes = computed(() => {
+
+    const tableData = computed(() => {
       return node?.data ? node.data : "";
     });
-    const hasChildren = computed(() => {
-      return Object.keys(node.kids)[0];
-    });
+
     const toggleChildrenIcon = computed(() => {
-      return showChildren.value ? "fas fa-angle-down" : "fas fa-angle-right";
+      return showChildren.value ? "fa fa-angle-down" : "fa fa-angle-right";
     });
-    const extractChildrenData = (arg: any) => {
-      const nodes = arg[`${Object.keys(arg)[0]}`];
-      if (nodes) {
-        return nodes.records;
+
+    const title = computed(() => {
+      return "";
+    });
+    const hasRecords = computed(() => {
+      return node?.kids ? Object.keys(node.kids).length : false;
+    });
+    const normalizeData = (arg: any) => {
+      const kids = arg.kids;
+      let normalizedData: any[] = [];
+      if (kids) {
+        for (let key in kids) {
+          kids[key].records.forEach((element: any) => {
+            normalizedData.push({ ...element, title: key });
+          });
+        }
       }
+      return normalizedData;
     };
-    const areThereRecords = computed(() => {
-      return node?.kids[`${hasChildren.value}`]?.records.length;
-    });
+
     const toggleChildren = () => {
       showChildren.value = !showChildren.value;
     };
+
     const removeNode = (node: ITableRow) => {
-      store.dispatch("mainDataModule/removeNode", node);
+      let newObj: any = {};
+      node.kids ? (newObj.kids = node.kids) : null,
+        node.data ? (newObj.data = node.data) : null,
+        store.dispatch("mainDataModule/removeNode", newObj);
     };
     return {
       toggleChildren,
-      extractChildrenData,
+      normalizeData,
       toggleChildrenIcon,
-      hasChildren,
-      nodes,
+      tableData,
       tableMargins,
       showChildren,
       removeNode,
-      areThereRecords,
+      title,
+      hasRecords,
+      randomKey,
+      globalMixin,
     };
   },
 });
@@ -138,6 +143,15 @@ export default defineComponent({
   cursor: pointer;
   &:hover {
     transform: scale(1.5);
+  }
+}
+table {
+  th,
+  td {
+    min-width: 150px;
+    max-width: 150px;
+    text-overflow: ellipsis;
+    white-space: pre-wrap;
   }
 }
 </style>

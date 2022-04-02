@@ -1,14 +1,19 @@
 <template>
   <div class="va-table-responsive">
     <h1>Recursive Table</h1>
-    <table class="va-table va-table--hoverable">
-      <tree-node-component v-for="node in treeData" :node="node" :key="node.data['Identification number']" />
-    </table>
+    <div class="va-table va-table--hoverable">
+      <tree-node-component
+        v-for="node in treeData"
+        :node="node"
+        :key="globalMixin(node)"
+      />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, computed, ref, watch } from "vue";
+import globalMixin from "../mixins/global.mixins";
 import treeNodeComponent from "./tree.node.component.vue";
 import { useStore } from "vuex";
 
@@ -22,6 +27,7 @@ export default defineComponent({
     const treeData = computed(() => store.getters["mainDataModule/data"]);
     return {
       treeData,
+      globalMixin
     };
   },
 });

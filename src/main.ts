@@ -6,6 +6,7 @@ import 'vuestic-ui/dist/vuestic-ui.css';
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { fas } from '@fortawesome/free-solid-svg-icons'
+
 library.add(fas);
 import { fab } from '@fortawesome/free-brands-svg-icons';
 library.add(fab);
@@ -14,4 +15,5 @@ library.add(far);
 import { dom } from "@fortawesome/fontawesome-svg-core";
 dom.watch();
 
-createApp(App).use(store).use(VuesticPlugin).component("font-awesome-icon", FontAwesomeIcon).mount('#app');
+const app = createApp(App)
+app.use(store).use(VuesticPlugin).component("font-awesome-icon", FontAwesomeIcon).mount('#app');
