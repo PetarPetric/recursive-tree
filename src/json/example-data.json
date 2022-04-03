@@ -41,7 +41,7 @@
                {
                   "data": {
                      "Relative ID": "1007",
-                     "Kurac ID": "44",
+                     "Pera ID": "44",
                      "jel ziv?": "true",
                      "Frequency of visits": "29"
                   },
@@ -310,11 +310,11 @@
                }
             ]
          },
-         "has_djoku": {
+         "has_bananas": {
             "records": [
                {
                   "data": {
-                     "kurac": "banana",
+                     "banana": "banana",
                      "jos nesto": "da"
                   }
                }
