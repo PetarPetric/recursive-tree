@@ -1,4 +1,4 @@
-# graphaware
+# Recursive Tree
 
 ## Project setup
 ```
